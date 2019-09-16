@@ -1,0 +1,3 @@
+#Ping test default route
+ip r | grep def
+ping -c 3 $(ip r | grep def | awk '{print $3}')
