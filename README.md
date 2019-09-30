@@ -1,2 +1,2 @@
 # Unix_scripts
-Scripts for Sysadmin on dailyworks
+Scripts for Sysadmin for dailyworks
