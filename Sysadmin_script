@@ -1,3 +1,62 @@
-#Ping test default route
-ip r | grep def
-ping -c 3 $(ip r | grep def | awk '{print $3}')
+-------------------------
+#Ping test default route |
+-------------------------
+$ ip r | grep def
+$ ping -c 3 $(ip r | grep def | awk '{print $3}')
+
+-----------------------------------------------------------------------------------
+Add FS,NFS (lvcreate) create mount point,create ext4 filesystem, add fs into fstab |
+-----------------------------------------------------------------------------------
+
+$ cat > fsconfigure.sh << EOF
+#!/bin/bash
+
+while true
+do
+ read -r -p "Do you want to add FS? [Y/n] " input
+  case $input in
+     [yY][eE][sS]|[yY])
+  echo "Yes"
+  echo "format: vg00 lv_name -l100%/-L50G /mount/point "
+  read vg  lv_name size mount_point
+  lvcreate -n $lv_name $size $vg
+  mkfs.ext4 /dev/$vg/$lv_name
+  mkdir -p $mount_point
+  echo -e "#"$do >> /etc/fstab
+  echo -e "/dev/mapper/$vg-$lv_name   $mount_point\t\t ext4 \t defaults \t 1 2" >> /etc/fstab
+  ;;
+     [nN][oO]|[nN])
+  echo "No"
+  break
+        ;;
+      *)
+  echo "Invalid input..."
+  ;;
+ esac
+done
+while true
+do
+ read -r -p "Do you want to add NFS? [Y/n] " input
+  case $input in
+     [yY][eE][sS]|[yY])
+  echo "Yes"
+  echo "format: ip server_directory mount_point "
+  read ip  server_directory  nfs_point 
+  mkdir -p $nfs_point
+  echo -e "\[$ip\]\:$server_directory  $nfs_point\t\t nfs \t rw,nosuid,nfsvers=3,retrans=5,timeo=1800,retry=1000,rsize=32768,wsize=32768 \t 0 0" >> /etc/fstab
+  ;;
+     [nN][oO]|[nN])
+  echo "No"
+  break
+        ;;
+      *)
+  echo "Invalid input..."
+  ;;
+ esac
+done
+mount -a
+
+EOF
+
+$ chmod 755 fsconfigure.sh
+
