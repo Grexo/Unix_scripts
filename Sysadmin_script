@@ -60,3 +60,8 @@ EOF
 
 $ chmod 755 fsconfigure.sh
  
+ --------------------------------------
+#Dig for all dns from /etc/resolv.conf |
+---------------------------------------
+
+ for i in `grep ^nameserver /etc/resolv.conf | awk '{print $2}'`; do dig @$i -x $i; done
